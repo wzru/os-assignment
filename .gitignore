@@ -1,0 +1,12 @@
+*.pdf
+*.doc
+*.docx
+*.exe
+
+*.log
+*.nav
+*.snm
+
+.vscode/
+bin/
+output/
