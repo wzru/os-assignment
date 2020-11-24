@@ -6,7 +6,9 @@
 *.log
 *.nav
 *.snm
+*.txt
 
 .vscode/
 bin/
 output/
+img*/
