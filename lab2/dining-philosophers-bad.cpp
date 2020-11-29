@@ -3,6 +3,7 @@
 #include <iostream>
 #include <pthread.h>
 #include <semaphore.h>
+#include <stdarg.h>
 #include <time.h>
 #include <unistd.h>
 

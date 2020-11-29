@@ -12,7 +12,11 @@ int t = 0;
 pthread_mutex_t mutex;
 int buf[10], cnt = 0;
 
-void push(int x) { buf[cnt++] = x; }
+void push(int x) {
+  buf[cnt++] = x;
+  if (cnt > 10)
+    cnt = 10;
+}
 
 int pop() {
   if (cnt > 0)

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <pthread.h>
 #include <semaphore.h>
+#include <stdarg.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -35,20 +36,21 @@ void *philosopher(void *arg) {
   int id = ((int *)arg)[0];
   while (1) {
     usleep(rand(100000, 500000));
-    log("%d饿了，想要就餐", id);
+    log("哲学家%d饿了，想要就餐", id);
     sem_wait(&r);
     usleep(rand(100000, 500000));
-    log("%d等待取左边的%d号筷子", id, id);
+    log("哲学家%d等待取左边的%d号筷子", id, id);
     pthread_mutex_lock(&mtx[id]);
     usleep(rand(100000, 500000));
-    log("%d已取得左边的%d号筷子，等待取右边的%d号筷子", id, id, (id + 4) % 5);
+    log("哲学家%d已取得左边的%d号筷子，等待取右边的%d号筷子", id, id,
+        (id + 4) % 5);
     pthread_mutex_lock(&mtx[(id + 4) % 5]);
     usleep(rand(100000, 500000));
-    log("%d正在就餐...", id);
+    log("哲学家%d已取到一对筷子，正在就餐...", id);
     pthread_mutex_unlock(&mtx[(id + 4) % 5]);
     pthread_mutex_unlock(&mtx[id]);
     usleep(rand(100000, 500000));
-    log("%d吃饱了!", id);
+    log("哲学家%d吃饱了!", id);
     sem_post(&r);
   }
 }
