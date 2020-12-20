@@ -14,19 +14,20 @@ typedef uint32_t uint32;
 
 #define PAGEMAP_ENTRY 8
 #define get_bit(X, Y) ((X & ((uint64)1 << Y)) >> Y)
-#define get_pfn(X) (X & 0x7FFFFFFFFFFFFF)
+#define get_pfn(X) (X & 0x7FFFFFFFFFFFFFLL)
 
 const int __endian_bit = 1;
 #define is_bigendian() ((*(char *)&__endian_bit) == 0)
 
+const uint32 flag = 0x12345678;
 int pid;
-uint32 va;
+uint64 va;
 uint64 read_val, file_offset, page_size = getpagesize();
 char path_buf[0x100] = {};
 FILE *f;
 char *end;
 
-int read_pagemap(char *path_buf, uint32 va);
+int read_pagemap(char *path_buf, uint64 va);
 
 int main(int argc, char *argv[])
 {
@@ -37,20 +38,20 @@ int main(int argc, char *argv[])
     pid = getpid();
     if (argc < 3 || !strcmp(argv[1], "self"))
     {
-        sscanf(argv[1], "%x", &va);
+        sscanf(argv[1], "%lx", &va);
         sprintf(path_buf, "/proc/self/pagemap");
     }
     else
     {
         sscanf(argv[1], "%d", &pid);
-        sscanf(argv[2], "%x", &va);
+        sscanf(argv[2], "%lx", &va);
         sprintf(path_buf, "/proc/%u/pagemap", pid);
     }
     printf("pid=%d\n", pid);
     return read_pagemap(path_buf, va);
 }
 
-int read_pagemap(char path_buf[], uint32 va)
+int read_pagemap(char path_buf[], uint64 va)
 {
     printf("Big-Endian %d\n", is_bigendian());
     f = fopen(path_buf, "rb");
@@ -62,7 +63,7 @@ int read_pagemap(char path_buf[], uint32 va)
     //Shifting by virt-addr-offset number of bytes
     //and multiplying by the size of an address (the size of an entry in pagemap file)
     file_offset = va / page_size * PAGEMAP_ENTRY;
-    printf("VA=0x%x Page-Size=%ld, Entry-Size=%d\n", va, page_size, PAGEMAP_ENTRY);
+    printf("VA=0x%lx Page-Size=%ld, Entry-Size=%d\n", va, page_size, PAGEMAP_ENTRY);
     printf("Reading %s at 0x%lx\n", path_buf, (uint64)file_offset);
     if (fseek(f, file_offset, SEEK_SET))
     {
@@ -82,7 +83,7 @@ int read_pagemap(char path_buf[], uint32 va)
             c_buf[i] = c;
         else
             c_buf[PAGEMAP_ENTRY - i - 1] = c;
-        printf("[%d]0x%x ", i, c);
+        printf("[%d]0x%02x ", i, c);
     }
     for (int i = 0; i < PAGEMAP_ENTRY; ++i)
     {
